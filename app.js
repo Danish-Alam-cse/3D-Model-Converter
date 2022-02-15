@@ -4,6 +4,9 @@ const path = require('path');
 const app = express();
 const obj2gltf = require("obj2gltf");
 const fs = require("fs");
+const model = require('./project/gtlf.json');
+
+app.use(express.static('project/gltf'))
   
 // let rName = (new Date()).toDateString;
 const storage = multer.diskStorage({
@@ -13,6 +16,7 @@ const storage = multer.diskStorage({
     },
   
     filename: function(req, file, cb) {
+
         cb(null, (file.originalname));
     }
 });
@@ -21,10 +25,15 @@ var upload = multer({ storage: storage })
   
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
+
 });
   
 app.post('/', upload.array('files'), (req, res) => {
-//    console.log(req.files);
+  //  console.log(req.files);
+  //  console.log(req.body.name);
+  //  console.log(req.body.id);
+  //  console.log(req.body.lnglt);
+
 var filenames = req.files.filter(function (file) {
     var ext = path.extname(file.filename);
 
@@ -71,10 +80,84 @@ obj2gltf(`./uploads/${filenames[i].filename}`).then(function (gltf) {
 
   data = Buffer.from(JSON.stringify(gltf));
   // console.log(`above the file ${i}`);
-  fs.writeFileSync(`./uploads/${name}.gltf`, data);
+  fs.writeFileSync(`./project/gltf/${name}.gltf`, data);
   // res.send(JSON.stringify(data));
 // console.log(data);
-res.redirect(filenames,'/download');
+// global.randomVAlue = name;
+// console.log(global);
+
+let file = `${__dirname}/project/gltf/${name}.gltf`;
+let filepath = file.split('\\');
+console.log(`this is filepath ${filepath[3]}`);
+
+// var data = {}
+// data.model = []
+//    var obj = {
+//        id: req.body.id,
+//        name :req.body.name,
+//        path: file,
+//        lnglt:req.body.lnglt
+//    }
+   
+//    data.model.push(obj)
+//    console.log(obj);
+
+// fs.appendFile("./project/gtlf.json", JSON.stringify(data), function(err) {
+//     if (err) throw err;
+//     console.log('complete');
+//     }
+// );
+
+// fs.readFile('./project/gtlf.json', 'utf-8', function(err, data) {
+// 	if (err) throw err
+
+// 	var arrayOfObjects = JSON.parse(data)
+//   console.log(arrayOfObjects);
+// })
+
+// fs.readFile('./project/gtlf.json', 'utf-8', function(err, data) {
+// 	if (err) throw err
+
+// 	var arrayOfObjects = JSON.parse(data)
+// 	arrayOfObjects.model.push({
+//     id: req.body.id,
+//     name :req.body.name,
+//     path: file,
+//     lnglt:req.body.lnglt
+// 	})
+
+// 	console.log(arrayOfObjects)
+// })
+// fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
+// 	if (err) throw err
+// 	console.log('Done!')
+// })
+
+fs.readFile('./project/gtlf.json', 'utf-8', function(err, data) {
+	if (err) throw err
+
+	var arrayOfObjects = JSON.parse(data)
+	arrayOfObjects.model.push({
+    id: req.body.id,
+    name :req.body.name,
+    path: filepath[3],
+    lnglt:req.body.lnglt
+	})
+
+	// console.log(arrayOfObjects)
+
+	fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
+		if (err) throw err
+		console.log('Done!')
+	})
+})
+
+
+res.download(file);
+// res.redirect('/preview');
+// res.redirect('/download')
+
+
 // res.send("<h1>sent</h1>")
   // console.log(`below the file ${i}`)
 });
@@ -88,15 +171,15 @@ res.redirect(filenames,'/download');
   // console.log(data);
 });
 
-// app.get('/download',(req,res)=>{
-//   fs.readFileSync(`./uploads/${name}.gltf`)
-// })
+app.get('/download',(req,res)=>{
+  res.redirect('/');
+})
+app.get('/preview',(req,res)=>{
+   res.sendFile(__dirname + '/model.html');
+ })
   
-app.get('/download', function(req, res){
-  // Set disposition and send it.
-  const file = `${__dirname}/uploads/${filenames.filename}.gltf`;
-
-res.download(file);
-});
-
+// app.get('/download', function(req, res){
+//   // Set disposition and send it.
+// });
+// console.log();
 app.listen(3000);
