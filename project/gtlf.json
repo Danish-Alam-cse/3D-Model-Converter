@@ -1,40 +1,16 @@
 {
   "model": [
     {
-      "id": "3678348",
+      "id": "656790",
       "name": "rpc",
       "path": "multiple/project/gltf/DEL_ING_31.gltf",
       "lnglt": "23.3441, 85.3096"
     },
     {
-      "id": "1459483",
-      "name": "ing",
+      "id": "916391",
+      "name": "srk",
       "path": "multiple/project/gltf/DEL_RPC_21.gltf",
-      "lnglt": "23.3441, 85.3096"
-    },
-    {
-      "id": "6912191",
-      "name": "danish",
-      "path": "multiple/project/gltf/DEL_ING_31.gltf",
-      "lnglt": "23.3441, 85.3096"
-    },
-    {
-      "id": "775141",
-      "name": "md",
-      "path": "multiple/project/gltf/DEL_ING_31.gltf",
-      "lnglt": "23.3441, 85.3096"
-    },
-    {
-      "id": "908494",
-      "name": "new",
-      "path": "multiple/project/gltf/DEL_ING_31.gltf",
-      "lnglt": "23.3441, 85.3096"
-    },
-    {
-      "id": "495346",
-      "name": "rpc",
-      "path": "multiple/project/gltf/DEL_ING_31.gltf",
-      "lnglt": "23.3441, 85.3096"
+      "lnglt": "24.456, 34.789"
     }
   ]
 }

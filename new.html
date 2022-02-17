@@ -1,24 +1,228 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
+    <title>Model Converter</title>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://www.jsdelivr.com/package/npm/obj2gltf">
-    
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://apis.mapmyindia.com/advancedmaps/api/6afd17c1d7c643cfd936980a152f4523/map_sdk?layer=vector&v=2.0&callback=initMap1" defer async></script>
+                
+    <style>
+    body { margin: 0; padding: 0; }
+    #map {  width: 40%; height:60vh; float:left;margin-left: 100px;}
+    </style>
+    <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- CSS only -->
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script> -->
+<!-- <script type="text/javascript">
+var gRandLength = 6;
+// OnChange=Math.floor(100000 + Math.random() * 900000)
+
+document.getElementById("button").addEventListener("click",function(){
+    var num = Math.floor(1 + (Math.random() * Math.pow(10, gRandLength)));
+    var value = document.getElementById("input").innerHTML = num;
+    console.log(value);
+})
+
+// $(document).ready(function() {   
+//     $('#button').click(function() {   
+//     var num = Math.floor(1 + (Math.random() * Math.pow(10, gRandLength)));
+//     $('#input').val(num);
+//     });
+// });
+</script> -->
+
+
+<script>
+// now = new Date();
+// randomNum = '';
+// randomNum += Math.round(Math.random()*9);
+// randomNum += Math.round(Math.random()*9);
+// randomNum += now.getTime();
+// document.formName.id.value = randomNum;
+console.log(Math.floor(100000 + Math.random() * 900000));
+function get(){
+    var num = Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('id').value = num;
+
+}
+</script>
 </head>
-<body>
-
-    <script>
+  <body>
+      <nav>
+          <a href="" class="navbar-brand">Model Converter</a>
+      </nav>
+      
         
-obj2gltf("DEL_ING_31.obj").then(function (gltf) {
-  const data = Buffer.from(JSON.stringify(gltf));
-  fs.writeFileSync("log.gltf", data);
-});
-
-    </script>
+              
+                  <div class="card" style="padding:100px;margin-left:50px;width:20%; height:200px; background-color:green;color:white;float:left">
+                      
+                          <h5 class="text-secondary">Add Your .obj, .mtl and .png file to get .gltf file.</h5>
+                      
+                      
+                        <form action="" enctype="multipart/form-data" method="get" onsubmit=get()>
+                            <div class="mb-3">
+                                <label>Choose Files</label>
+                                <input type="file" name="files" multiple class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                
+                                <input type="text" name="id" id="input"  class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label>Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Lnglt</label>
+                                <input type="text" name="lnglt"  class="form-control" required>
+                            </div>
+                         
+                            
+                            <div class="mb-3">
+                                <input type="submit" id="button" value="Upload" class="btn btn-primary form-control">
+                            </div>
+                            
+                          </form>  
+                      
+                  
+            </div>
+              
+                
+                <div id="map"></div>
+                <script>
+                    var map;
+                              function initMap1(){
+                                map = new MapmyIndia.Map('map', {
+                                    center: [28.61, 77.23],
+                                    zoomControl: true,
+                                    zoom:19,
     
-</body>
+                                    location: true,
+                                    backgroundColor:'red',
+                                    draggable: true,
+                                });
+                
+                                const modelOrigin = [77.23,28.61];
+                                const modelAltitude = 0;
+                                const modelRotate = [Math.PI / 2, 0, 0];
+                
+                    const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                        modelOrigin,
+                        modelAltitude
+                    );
+                
+                    // transformation parameters to position, rotate and scale the 3D model onto the map
+                    const modelTransform = {
+                        translateX: modelAsMercatorCoordinate.x,
+                        translateY: modelAsMercatorCoordinate.y,
+                        translateZ: modelAsMercatorCoordinate.z,
+                        rotateX: modelRotate[0],
+                        rotateY: modelRotate[1],
+                        rotateZ: modelRotate[2],
+                        /* Since the 3D model is in real world meters, a scale transform needs to be
+                         * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+                         */
+                        scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+                    };
+                
+                    const THREE = window.THREE;
+                
+                    // configuration of the custom layer for a 3D model per the CustomLayerInterface
+                    const customLayer = {
+                        id: '3d-model',
+                        type: 'custom',
+                        renderingMode: '3d',
+                        onAdd: function (map, gl) {
+                            this.camera = new THREE.Camera();
+                            this.scene = new THREE.Scene();
+                
+                            // create two three.js lights to illuminate the model
+                            // const directionalLight = new THREE.DirectionalLight(0xffffff);
+                            // directionalLight.position.set(0, -70, 100).normalize();
+                
+                            
+                        
+                            var light = new THREE.AmbientLight(0xffffff);
+                            this.scene.add(light);
+                
+                            // const directionalLight2 = new THREE.DirectionalLight(0xffffff, 9.0, 1000);
+                            // directionalLight2.position.set(0, 70, 100).normalize();
+                            // this.scene.add(directionalLight2);
+                            
+                //             const floor = new THREE.Mesh(
+                //              new THREE.PlaneBufferGeometry(50, 50),
+                //             new THREE.MeshPhongMaterial({
+                //     color: "gray"
+                //   })
+                // );
+                
+                            // use the three.js GLTF loader to add the 3D model to the three.js scene
+                            const loader = new THREE.GLTFLoader();
+                            loader.load(
+                                './DEL_ING_31.gltf',
+                                
+                                (gltf) => {
+                                    this.scene.add(gltf.scene);
+                                }
+                            );
+                            this.map = map;
+                
+                            // use the Mapbox GL JS map canvas for three.js
+                            this.renderer = new THREE.WebGLRenderer({
+                                canvas: map.getCanvas(),
+                                context: gl,
+                                antialias: true
+                            });
+                
+                            this.renderer.autoClear = false;
+                            this.renderer.shadowMap.enabled = true;
+                            this.renderer.shadowMap.type = THREE.PCFShadowMap;
+                            this.directionalLight2.castShadow = true;
+                            this.directionalLight2.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 100, 1, 500, 1000 ) );
+                            this.directionalLight2.shadow.bias = 0.0001;    
+                            this.directionalLight2.shadow.mapSize.width = 2048 * 2;
+                            this.directionalLight2.shadow.mapSize.height = 2048 * 2;
+                            this.scene.add(directionalLight2);
+                
+                            this.floor.receiveShadow = true;
+                            this.loader.castShadow = true;
+                
+                            
+                            },
+                            render: function (gl, matrix) {
+                            var m = new THREE.Matrix4().fromArray(matrix);
+                            var l = new THREE.Matrix4().makeTranslation( modelTransform.translateX, modelTransform.translateY,modelTransform.translateZ ).scale(new THREE.Vector3(modelTransform.scale, -modelTransform.scale, modelTransform.scale));
+                            this.camera.projectionMatrix = m.multiply(l);
+                            this.renderer.resetState();
+                            this.renderer.render(this.scene, this.camera);
+                            this.map.triggerRepaint();
+                        }
+                    };
+                    map.on('load',function(){
+                            map.addLayer(customLayer);
+                        })
+                
+                
+                                // map.addListener("click",function me(){
+                                //     console.log('clicked by me');
+                                // })
+                                // map.addListener('dblclick', function () { console.log("hello")});
+                              }
+                            
+                
+                    console.log(randomVAlue);
+                    
+                  
+                </script>
+                
+                </body>
+                </html>
+              </div>
+         
+      
+   
+    
+  </body>
 </html>
+

@@ -5,26 +5,70 @@ const app = express();
 const obj2gltf = require("obj2gltf");
 const fs = require("fs");
 const model = require('./project/gtlf.json');
+const sharp = require("sharp")
 
 app.use(express.static('project/gltf'))
   
+
+// model.model.map((item)=>{console.log("item ",item.name);});
 // let rName = (new Date()).toDateString;
 const storage = multer.diskStorage({
+ 
+  
     destination: function(req, file, cb) {
-        
+      // console.log(file.mimetype);
+      // if(file.mimetype=='.image/svg+xml'){
+      //   sharp(file.originalname)
+      //       .png()
+      //       .toFile(`./uploads/${file.originalname}.png`)
+      //       .then(function(info) {
+      //       console.log(info)
+      //     })
+      //       .catch(function(err) {
+      //       console.log(err)
+      //     })
+
+      // }
+       var ext = path.extname(file.originalname);
+      //  console.log(ext);
+      
+      // if(ext =='.obj' && ext=='.mtl') {
+      //   console.log(file.originalname);
+      // }
+      if (ext =='.svg') {
+        sharp(file.originalname)
+          .png()
+          .toFile(`./uploads/${file.originalname}.png`)
+          .then(function(info) {
+          // console.log(info)
+        })
+          .catch(function(err) {
+          // console.log(err)
+        })
+            } 
+
         cb(null, 'uploads/');
+      
     },
+ 
   
     filename: function(req, file, cb) {
 
         cb(null, (file.originalname));
-    }
+        // console.log(file.originalname);
+    },
+
+   
+   
+    
+  
 });
   
 var upload = multer({ storage: storage })
   
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
+  
 
 });
   
@@ -33,6 +77,7 @@ app.post('/', upload.array('files'), (req, res) => {
   //  console.log(req.body.name);
   //  console.log(req.body.id);
   //  console.log(req.body.lnglt);
+  
 
 var filenames = req.files.filter(function (file) {
     var ext = path.extname(file.filename);
@@ -88,7 +133,7 @@ obj2gltf(`./uploads/${filenames[i].filename}`).then(function (gltf) {
 
 let file = `${__dirname}/project/gltf/${name}.gltf`;
 let filepath = file.split('\\');
-console.log(`this is filepath ${filepath[3]}`);
+// console.log(`this is filepath ${filepath[3]}`);
 
 // var data = {}
 // data.model = []
@@ -136,24 +181,69 @@ console.log(`this is filepath ${filepath[3]}`);
 fs.readFile('./project/gtlf.json', 'utf-8', function(err, data) {
 	if (err) throw err
 
-	var arrayOfObjects = JSON.parse(data)
-	arrayOfObjects.model.push({
-    id: req.body.id,
-    name :req.body.name,
-    path: filepath[3],
-    lnglt:req.body.lnglt
-	})
+	var arrayOfObjects = JSON.parse(data);
+  
+  // console.log(arrayOfObjects);
+  // console.log(arrayOfObjects.model.name);
+  let oldData = false;
+  
+   arrayOfObjects.model.map((item)=>{
+    if(item.name===req.body.name 
+      || item.id===req.body.id 
+      || item.path===filepath[3] 
+      || item.lnglt===req.body.lnglt) {
+      // console.log("different");
+      oldData = true;
+
+      // arrayOfObjects.model.push({
+      //   id: req.body.id,
+      //   name :req.body.name,
+      //   path: filepath[3],
+      //   lnglt:req.body.lnglt
+      // })
+
+      // fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
+      //   if (err) throw err
+      //   // console.log('Done!')
+      // })
+      // res.download(file);
+    }
+    else{
+      oldData = false;
+      // console.log("not inserted");
+      // res.send("danishhhhhhhhhhhhh")
+      // res.status(200).send({status: 0, message: "Messages available"});
+    }
+});
+  
+
+  if(!oldData){
+    arrayOfObjects.model.push({
+      id: req.body.id,
+      name :req.body.name,
+      path: filepath[3],
+      lnglt:req.body.lnglt
+    })
+
+    fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
+      if (err) throw err
+      // console.log('Done!')
+    })
+    res.download(file);
+  }
+  if(oldData){
+    res.send("This file is already present in the json file");
+  }
 
 	// console.log(arrayOfObjects)
 
-	fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
-		if (err) throw err
-		console.log('Done!')
-	})
+	// fs.writeFile('./project/gtlf.json', JSON.stringify(arrayOfObjects), 'utf-8', function(err) {
+	// 	if (err) throw err
+	// 	// console.log('Done!')
+	// })
 })
 
 
-res.download(file);
 // res.redirect('/preview');
 // res.redirect('/download')
 
@@ -171,12 +261,12 @@ res.download(file);
   // console.log(data);
 });
 
-app.get('/download',(req,res)=>{
-  res.redirect('/');
-})
-app.get('/preview',(req,res)=>{
-   res.sendFile(__dirname + '/model.html');
- })
+// app.get('/download',(req,res)=>{
+//   res.redirect('/');
+// })
+// app.get('/preview',(req,res)=>{
+//    res.sendFile(__dirname + '/model.html');
+//  })
   
 // app.get('/download', function(req, res){
 //   // Set disposition and send it.

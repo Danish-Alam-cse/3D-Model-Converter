@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/index.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/CHANGES.md"></script>
+<script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/LICENSE.md"></script>
+<script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/package.json"></script>
+<script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/README.md"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/obj2gltf@3/index.min.js"></script> -->
+<script>
+window.define = function(factory) {
+    try{ delete window.define; } catch(e){ window.define = void 0; } // IE
+    window.when = factory();
+};
+window.define.amd = {};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/obj2gltf@3.1.4/index.js" integrity="sha256-Cs37rz7dVQKaHIwp1zGXCa9957H1Fvz7hWP++x3zNe4=" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <script>
+        
+
+obj2gltf("./uploads/DEL_RPC_21.obj").then(function (gltf) {
+  const data = Buffer.from(JSON.stringify(gltf));
+  fs.writeFileSync("./gltf/aaj.gltf", data);
+});
+
+    </script>
+    
+</body>
+</html>
+
